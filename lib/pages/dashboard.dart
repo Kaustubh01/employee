@@ -35,7 +35,8 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _getEmployeeUsingEmail(String email) async {
-    final url = Uri.parse('$baseurl/business/general/employees/email?email=$email');
+    final url =
+        Uri.parse('$baseurl/business/general/employees/email?email=$email');
     try {
       final response = await http.get(url, headers: {
         'Content-Type': 'application/json',
@@ -80,6 +81,8 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Dashboard"),
+        backgroundColor: Colors.orange.shade600,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             onPressed: () {
@@ -103,36 +106,49 @@ class _DashboardState extends State<Dashboard> {
         ],
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Container(
+          decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue, Colors.blueAccent],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+          ),
+          child: Column(
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(color: Colors.transparent),
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    employee['name']?.toUpperCase() ?? "Loading...",
-                    style: const TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                  Text(
-                    employee['email'] ?? "Loading...",
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                ],
-              ),
+            Text(
+              employee['name']?.toUpperCase() ?? "Loading...",
+              style: const TextStyle(color: Colors.white, fontSize: 20),
             ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text("Logout"),
-              onTap: _logout,
+            Text(
+              employee['email'] ?? "Loading...",
+              style: const TextStyle(color: Colors.white70),
             ),
           ],
+            ),
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: ListTile(
+          leading: const Icon(Icons.logout, color: Colors.white),
+          title: const Text("Logout", style: TextStyle(color: Colors.white)),
+          onTap: _logout,
+            ),
+          ),
+        ],
+          ),
         ),
       ),
       body: Column(
         children: [
           _buildEmployeeCard(),
+          const Divider(color: Colors.grey),
           Expanded(child: _buildTaskList()),
         ],
       ),
@@ -140,22 +156,37 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildEmployeeCard() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              employee['name']?.toUpperCase() ?? "Loading...",
-              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            Text(employee['email'] ?? "Loading..."),
-            const SizedBox(height: 10),
-            Text("Department: ${employee['department'] ?? 'N/A'}"),
-            Text("Role: ${employee['role'] ?? 'N/A'}"),
-          ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 15.0),
+      child: Container(
+      color: Colors.transparent,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+        Text(
+          employee['name']?.toUpperCase() ?? "Loading...",
+          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
         ),
+        const SizedBox(height: 5),
+        Text(
+          "Email Address: ${employee['email']}" ?? "Loading...",
+          style: const TextStyle(fontSize: 16, color: Colors.black54),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          "Department: ${employee['department'] ?? 'N/A'}",
+          style: const TextStyle(fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          "Role: ${employee['role'] ?? 'N/A'}",
+          style: const TextStyle(fontSize: 16),
+          textAlign: TextAlign.center,
+        ),
+        ],
+      ),
       ),
     );
   }
@@ -176,15 +207,37 @@ class _DashboardState extends State<Dashboard> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  var task = tasks[index];
-                  return ListTile(
-                    title: Text(task['title']),
-                    subtitle: Text(task['description'] ?? "No description"),
-                    onTap: () => _showTaskDetails(task),
-                  );
-                },
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                var task = tasks[index];
+                return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Container(
+                  decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blue, Colors.blueAccent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  ),
+                  child: ListTile(
+                  title: Text(
+                    task['title'],
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  subtitle: Text(
+                    task['description'] ?? "No description",
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  onTap: () => _showTaskDetails(task),
+                  ),
+                ),
+                );
+              },
               ),
             ),
           ],
@@ -198,23 +251,37 @@ class _DashboardState extends State<Dashboard> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(task['title']),
+          title: Text(
+            task['title'],
+            style: const TextStyle(color: Colors.orange),
+          ),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(task['description'] ?? "No description"),
               if (task['dueDate'] != null)
-                Text("Due: ${task['dueDate'].split("T")[0]}")
+          Text("Due: ${task['dueDate'].split("T")[0]}")
             ],
           ),
           actions: [
-            TextButton(onPressed: () {}, child: const Text("Ongoing")),
-            TextButton(onPressed: () {}, child: const Text("Completed")),
+            TextButton(
+              onPressed: () {},
+              child: const Text(
+          "Ongoing",
+          style: TextStyle(color: Colors.blue),
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: const Text(
+          "Completed",
+          style: TextStyle(color: Colors.blue),
+              ),
+            ),
           ],
         );
       },
     );
   }
 }
-
